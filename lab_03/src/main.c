@@ -1,13 +1,8 @@
-//
-//  main.c
-//  lab_03
-//
-//  Created by Artem Goldenberg on 07.12.2022.
-//
-
 #include <stdio.h>
+#include "mergesort.h"
 
 int main(int argc, const char * argv[]) {
+    mergesort(NULL, 0, 0, NULL);
     // insert code here...
     printf("Hello, World!\n");
     return 0;
