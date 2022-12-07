@@ -4,15 +4,18 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define NOMEM "Error: memory allocation failed."
+#define CHECKMEM if (!array) { puts(NOMEM); return 1; }
+
 typedef int (*Comparator)(const void*, const void*);
 typedef void(*Printer)(const void *elem, int last);
 
 // int greater than comparator
-int int_gt_comparator(const void *a, const void *b) {
+int int_comparator(const void *a, const void *b) {
     return *(int*)a - *(int*)b;
 }
 
-int str_gt_comparator(const void *a, const void *b) {
+int str_comparator(const void *a, const void *b) {
     const char **str1 = (const char**)a;
     const char **str2 = (const char**)b;
     
@@ -48,10 +51,12 @@ int main(int argc, const char * argv[]) {
     
     if (strcmp(argv[1], "int") == 0) {
         printer = int_printer;
-        comparator = int_gt_comparator;
+        comparator = int_comparator;
         elem_size = sizeof(int);
         
         array = calloc(count, elem_size);
+        CHECKMEM;
+        
         for (int i = 0; i < count; ++i) {
             int num = atoi(argv[2 + i]);
             memcpy((char*)array + i * elem_size, &num, elem_size);
@@ -59,19 +64,23 @@ int main(int argc, const char * argv[]) {
         
     } else if (strcmp(argv[1], "char") == 0) {
         printer = char_printer;
-        comparator = int_gt_comparator;
+        comparator = int_comparator;
         elem_size = sizeof(char);
         
         array = calloc(count, elem_size);
+        CHECKMEM;
+        
         for (int i = 0; i < count; ++i)
             memcpy((char*)array + i * elem_size, argv[2 + i], elem_size);
         
     } else if (strcmp(argv[1], "str") == 0) {
         printer = str_printer;
-        comparator = str_gt_comparator;
+        comparator = str_comparator;
         elem_size = sizeof(char*);
         
         array = calloc(count, elem_size);
+        CHECKMEM;
+        
         for (int i = 0; i < count; ++i)
             memcpy((char*)array + i * elem_size, argv + 2 + i, elem_size);
         
@@ -80,13 +89,16 @@ int main(int argc, const char * argv[]) {
         return 1;
     }
     
-    mergesort1(array, count, elem_size, comparator);
+    if (mergesort(array, count, elem_size, comparator) != 0) {
+        puts(NOMEM);
+        free(array);
+        return 1;
+    }
     
     for (int i = 0; i < count; ++i)
         printer((char*)array + i * elem_size, i == count - 1);
     
     free(array);
-    
     
     return 0;
 }
